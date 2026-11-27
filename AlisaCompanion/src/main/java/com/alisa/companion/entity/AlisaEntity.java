@@ -71,6 +71,7 @@ public class AlisaEntity extends TamableAnimal {
     private long lastArmorQuestTime = Long.MIN_VALUE;
     private long lastDecorQuestTime = Long.MIN_VALUE;
     private long lastQuestOfferTime = Long.MIN_VALUE;
+    private boolean stayHere;
 
     public AlisaEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -120,6 +121,28 @@ public class AlisaEntity extends TamableAnimal {
             lastQuestOfferTime = now;
             startQuest(player, false);
         }
+    }
+
+    public void sendRelationshipStatus(Player player) {
+        player.displayClientMessage(Component.literal("Отношения с Алей: " + getRelationshipPoints()
+            + "/99 — " + getRelationshipStatus()), false);
+    }
+
+    public void requestQuestFromMenu(Player player) {
+        if (questType == QUEST_NONE) startQuest(player, true);
+        else showQuestStatus(player);
+    }
+
+    public void sendDialogGreeting(Player player) {
+        player.displayClientMessage(Component.literal("Аля: «Я здесь. Что будем делать?»"), false);
+    }
+
+    public void toggleStayHere(Player player) {
+        stayHere = !stayHere;
+        this.setOrderedToSit(stayHere);
+        this.navigation.stop();
+        player.displayClientMessage(Component.literal(stayHere
+            ? "Аля останется здесь." : "Аля снова будет следовать за тобой."), false);
     }
 
     public double getRelationshipPoints() {
@@ -375,11 +398,7 @@ public class AlisaEntity extends TamableAnimal {
             InteractionResult giftResult = tryAcceptGift(player, held);
             if (giftResult.consumesAction()) return giftResult;
 
-            this.setOrderedToSit(!this.isOrderedToSit());
-            this.navigation.stop();
-            player.displayClientMessage(Component.literal(this.isOrderedToSit()
-                ? "Аля присела отдохнуть." : "Аля готова идти с тобой!"), true);
-            return InteractionResult.CONSUME;
+            return InteractionResult.PASS;
         }
 
         if (!this.isTame() && (held.is(Items.COOKIE) || held.is(Items.SWEET_BERRIES)
