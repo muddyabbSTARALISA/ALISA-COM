@@ -36,9 +36,14 @@ public final class AlisaNetwork {
         static MenuActionPacket decode(FriendlyByteBuf buffer) {
             return new MenuActionPacket(buffer.readVarInt(), buffer.readVarInt());
         }
-        static void handle(MenuActionPacket packet, net.minecraftforge.network.NetworkEvent.Context context) {
+        static void handle(MenuActionPacket packet,
+                           java.util.function.Supplier<net.minecraftforge.network.NetworkEvent.Context> contextSupplier) {
+            net.minecraftforge.network.NetworkEvent.Context context = contextSupplier.get();
             ServerPlayer player = context.getSender();
-            if (player == null) return;
+            if (player == null) {
+                context.setPacketHandled(true);
+                return;
+            }
             Entity entity = player.level().getEntity(packet.entityId);
             if (!(entity instanceof AlisaEntity alisa) || !alisa.isOwnedBy(player)
                 || player.distanceToSqr(alisa) > 64.0D) return;
@@ -50,6 +55,7 @@ public final class AlisaNetwork {
                 case 4 -> alisa.toggleStayHere(player);
                 default -> { }
             }
+            context.setPacketHandled(true);
         }
     }
 }
