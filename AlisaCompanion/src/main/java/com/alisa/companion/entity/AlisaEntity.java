@@ -5,6 +5,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.Container;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkHooks;
+import net.minecraft.world.SimpleMenuProvider;
+import com.alisa.companion.menu.AlisaInventoryMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -67,6 +73,8 @@ public class AlisaEntity extends TamableAnimal {
     private String questItemId = "";
     private int questProgress = 0;
     private final List<String> questFoods = new ArrayList<>();
+    private final SimpleContainer companionInventory = new SimpleContainer(9);
+    private boolean teleportEnabled = true;
     private long lastFoodQuestTime = Long.MIN_VALUE;
     private long lastArmorQuestTime = Long.MIN_VALUE;
     private long lastDecorQuestTime = Long.MIN_VALUE;
@@ -79,7 +87,7 @@ public class AlisaEntity extends TamableAnimal {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 24.0D)
-            .add(Attributes.MOVEMENT_SPEED, 0.30D)
+            .add(Attributes.MOVEMENT_SPEED, 0.23D)
             .add(Attributes.FOLLOW_RANGE, 28.0D);
     }
 
@@ -87,8 +95,8 @@ public class AlisaEntity extends TamableAnimal {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.12D, 5.0F, 2.0F, true));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.85D));
+        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 0.90D, 5.0F, 2.0F, true));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.65D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
@@ -106,10 +114,25 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide || !this.isTame() || this.questType != QUEST_NONE) return;
+        if (this.level().isClientSide || !this.isTame()) return;
 
         Entity owner = this.getOwner();
-        if (!(owner instanceof Player player) || this.distanceToSqr(player) > 64.0D) return;
+        if (!(owner instanceof Player player)) return;
+
+        // Если Аля сильно отстала, она пытается безопасно переместиться рядом с владельцем.
+        // Закреплённую Алю не телепортируем.
+        if (teleportEnabled && !this.isOrderedToSit() && this.distanceToSqr(player) > 144.0D) {
+            for (int attempt = 0; attempt < 8; attempt++) {
+                double offsetX = (this.random.nextDouble() - 0.5D) * 4.0D;
+                double offsetZ = (this.random.nextDouble() - 0.5D) * 4.0D;
+                if (this.randomTeleport(player.getX() + offsetX, player.getY(),
+                    player.getZ() + offsetZ, true)) {
+                    break;
+                }
+            }
+        }
+
+        if (this.questType != QUEST_NONE || this.distanceToSqr(player) > 64.0D) return;
 
         long now = this.level().getGameTime();
         if (lastQuestOfferTime == Long.MIN_VALUE) {
@@ -120,6 +143,43 @@ public class AlisaEntity extends TamableAnimal {
             lastQuestOfferTime = now;
             startQuest(player, false);
         }
+    }
+
+    public Container getCompanionInventory() { return companionInventory; }
+    public boolean isTeleportEnabled() { return teleportEnabled; }
+
+    public void toggleTeleport(Player player) {
+        teleportEnabled = !teleportEnabled;
+        player.displayClientMessage(Component.literal("Автотелепортация Алисы: "
+            + (teleportEnabled ? "включена" : "выключена") + "."), false);
+    }
+
+    public void openCompanionInventory(ServerPlayer player) {
+        NetworkHooks.openScreen(player, new SimpleMenuProvider(
+            (id, inventory, owner) -> new AlisaInventoryMenu(id, inventory, this),
+            Component.literal("Инвентарь Алисы")), buffer -> buffer.writeVarInt(this.getId()));
+    }
+
+    public void sendRelationshipStatus(Player player) {
+        player.displayClientMessage(Component.literal("Отношения с Алей: " + getRelationshipPoints()
+            + "/99 — " + getRelationshipStatus()), false);
+    }
+
+    public void requestQuestFromMenu(Player player) {
+        if (questType == QUEST_NONE) startQuest(player, true);
+        else showQuestStatus(player);
+    }
+
+    public void sendDialogGreeting(Player player) {
+        player.displayClientMessage(Component.literal("Аля: «Я здесь. Что будем делать?»"), false);
+    }
+
+    public void toggleStayHere(Player player) {
+        boolean stayHere = !this.isOrderedToSit();
+        this.setOrderedToSit(stayHere);
+        this.navigation.stop();
+        player.displayClientMessage(Component.literal(stayHere
+            ? "Аля останется здесь." : "Аля снова будет следовать за тобой."), false);
     }
 
     public double getRelationshipPoints() {
@@ -320,6 +380,8 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.put("AlisaCompanionInventory", companionInventory.createTag());
+        tag.putBoolean("AlisaTeleportEnabled", teleportEnabled);
         tag.putInt(RELATIONSHIP_TAG, relationshipHalfPoints);
         tag.putLong(LAST_GIFT_TAG, lastGiftGameTime);
         tag.putInt(QUEST_TYPE_TAG, questType);
@@ -339,6 +401,10 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        teleportEnabled = !tag.contains("AlisaTeleportEnabled") || tag.getBoolean("AlisaTeleportEnabled");
+        if (tag.contains("AlisaCompanionInventory", Tag.TAG_LIST)) {
+            companionInventory.fromTag(tag.getList("AlisaCompanionInventory", Tag.TAG_COMPOUND));
+        }
         relationshipHalfPoints = Math.max(0, Math.min(198, tag.getInt(RELATIONSHIP_TAG)));
         lastGiftGameTime = tag.contains(LAST_GIFT_TAG) ? tag.getLong(LAST_GIFT_TAG) : Long.MIN_VALUE;
 
@@ -375,11 +441,7 @@ public class AlisaEntity extends TamableAnimal {
             InteractionResult giftResult = tryAcceptGift(player, held);
             if (giftResult.consumesAction()) return giftResult;
 
-            this.setOrderedToSit(!this.isOrderedToSit());
-            this.navigation.stop();
-            player.displayClientMessage(Component.literal(this.isOrderedToSit()
-                ? "Аля присела отдохнуть." : "Аля готова идти с тобой!"), true);
-            return InteractionResult.CONSUME;
+            return InteractionResult.PASS;
         }
 
         if (!this.isTame() && (held.is(Items.COOKIE) || held.is(Items.SWEET_BERRIES)

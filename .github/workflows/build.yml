@@ -3,7 +3,7 @@ name: Build Forge mod
 on:
   workflow_dispatch:
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "main", "master", "feature/**" ]
   push:
     branches: [ "main", "master", "feature/**" ]
 
