@@ -262,7 +262,8 @@ public class AlisaEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         }
 
-        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem\n            && stack.getTag() != null && stack.getTag().getBoolean("AlisaCraftedArmor")) {
+        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem
+            && stack.getTag() != null && stack.getTag().getBoolean("AlisaCraftedArmor")) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
             completeQuest(player, 3, "Задание выполнено! Аля получила новую броню. Награда: +1,5 очка.");
             return InteractionResult.CONSUME;
