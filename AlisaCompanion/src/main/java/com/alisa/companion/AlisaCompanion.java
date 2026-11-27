@@ -3,6 +3,7 @@ package com.alisa.companion;
 import com.alisa.companion.registry.ModEntities;
 import com.alisa.companion.registry.ModItems;
 import com.alisa.companion.network.AlisaNetwork;
+import com.alisa.companion.registry.ModMenuTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -23,6 +24,7 @@ public class AlisaCompanion {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         ModEntities.ENTITY_TYPES.register(modBus);
         ModItems.ITEMS.register(modBus);
+        ModMenuTypes.MENUS.register(modBus);
         AlisaNetwork.register();
         modBus.addListener(this::commonSetup);
         modBus.addListener(this::createAttributes);
