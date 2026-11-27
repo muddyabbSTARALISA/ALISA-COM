@@ -129,7 +129,6 @@ public class AlisaModel extends PlayerModel<AlisaEntity> {
         copyPose(this.head, this.rightLock);
         copyPose(this.head, this.backHair);
         copyPose(this.head, this.hood);
-        this.head.zRot += idle * 0.012F;
         this.fringe.zRot = this.head.zRot;
         this.leftLock.zRot = this.head.zRot + hairSwing + idle * 0.01F;
         this.rightLock.zRot = this.head.zRot - hairSwing - idle * 0.01F;
