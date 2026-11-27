@@ -39,7 +39,7 @@ import java.util.List;
 public class AlisaEntity extends TamableAnimal {
     private static final String RELATIONSHIP_TAG = "AlisaRelationshipHalfPoints";
     private static final String LAST_GIFT_TAG = "AlisaLastGiftTime";
-    private static final long GIFT_COOLDOWN_TICKS = 6000L;
+    private static final long GIFT_COOLDOWN_TICKS = 600L; // 30 секунд, чтобы отношения можно было проверять без долгого ожидания.
 
     private static final String QUEST_TYPE_TAG = "AlisaQuestType";
     private static final String QUEST_ITEM_TAG = "AlisaQuestItem";
@@ -55,7 +55,7 @@ public class AlisaEntity extends TamableAnimal {
     private static final int QUEST_ARMOR = 2;
     private static final int QUEST_DECOR = 3;
     private static final int FOOD_TYPES_REQUIRED = 3;
-    private static final long QUEST_TYPE_COOLDOWN_TICKS = 24000L;
+    private static final long QUEST_TYPE_COOLDOWN_TICKS = 1200L; // 1 минута между заданиями одного типа.
     private static final long AUTO_QUEST_OFFER_TICKS = 12000L;
 
     // Очки хранятся половинками, чтобы значения всегда были кратны 0,5.
@@ -201,7 +201,7 @@ public class AlisaEntity extends TamableAnimal {
             player.displayClientMessage(Component.literal("Аля: «Принеси мне три разных вида еды! Шоколад и газировка мне особенно нравятся»."), false);
         } else if (selected == QUEST_ARMOR) {
             lastArmorQuestTime = now;
-            player.displayClientMessage(Component.literal("Аля: «Скрафти для меня любую часть брони. Чёрные и белые цвета мне особенно нравятся, розовый тоже подойдёт!»"), false);
+            player.displayClientMessage(Component.literal("Аля: «Принеси мне любую часть брони! Чёрная или белая будет особенно красивой, розовая тоже подойдёт. Просто возьми броню в руку и нажми ПКМ по мне»."), false);
         } else {
             List<Block> blocks = getAvailableDecorationBlocks(player);
             Block requestedBlock = blocks.get(this.random.nextInt(blocks.size()));
@@ -225,7 +225,7 @@ public class AlisaEntity extends TamableAnimal {
             player.displayClientMessage(Component.literal("Задание Алисы: принести три разных вида еды. Прогресс: "
                 + questFoods.size() + "/" + FOOD_TYPES_REQUIRED + "."), true);
         } else if (questType == QUEST_ARMOR) {
-            player.displayClientMessage(Component.literal("Задание Алисы: принести часть брони, которую ты скрафтил. Прогресс: "
+            player.displayClientMessage(Component.literal("Задание Алисы: принеси любую часть брони. Возьми её в руку и нажми ПКМ по Але. Прогресс: "
                 + questProgress + "/1."), true);
         } else if (questType == QUEST_DECOR) {
             player.displayClientMessage(Component.literal("Задание Алисы: поставить рядом блок "
@@ -262,10 +262,18 @@ public class AlisaEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         }
 
-        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem
-            && stack.getTag() != null && stack.getTag().getBoolean("AlisaCraftedArmor")) {
+        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
             completeQuest(player, 3, "Задание выполнено! Аля получила новую броню. Награда: +1,5 очка.");
+            return InteractionResult.CONSUME;
+        }
+        if (questType != QUEST_NONE && !stack.isEmpty()) {
+            String hint = questType == QUEST_FOOD
+                ? "Аля просит еду. Передай ей три разных вида еды по одному."
+                : questType == QUEST_ARMOR
+                    ? "Аля просит броню. Возьми любую часть брони в руку и нажми ПКМ по ней."
+                    : "Аля просит поставить указанный декоративный блок рядом с ней.";
+            player.displayClientMessage(Component.literal(hint), true);
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
@@ -374,7 +382,8 @@ public class AlisaEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         }
 
-        if (!this.isTame() && (held.is(Items.COOKIE) || held.is(Items.SWEET_BERRIES))) {
+        if (!this.isTame() && (held.is(Items.COOKIE) || held.is(Items.SWEET_BERRIES)
+            || held.is(ModItems.CHOCOLATE.get()) || held.is(ModItems.SODA.get()))) {
             if (!player.getAbilities().instabuild) held.shrink(1);
             this.tame(player);
             this.setOrderedToSit(false);
@@ -386,7 +395,7 @@ public class AlisaEntity extends TamableAnimal {
         }
 
         if (!this.isTame()) {
-            player.displayClientMessage(Component.literal("Аля пока не знает тебя. Попробуй угостить её печеньем или сладкими ягодами."), true);
+            player.displayClientMessage(Component.literal("Аля пока не знает тебя. Попробуй угостить её печеньем, сладкими ягодами, шоколадом или газировкой."), true);
         }
         return InteractionResult.PASS;
     }
