@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "minecraft:milk_bucket" },
+    { "item": "minecraft:cocoa_beans" }
+  ],
+  "result": {
+    "item": "alisacompanion:chocolate",
+    "count": 1
+  }
+}
