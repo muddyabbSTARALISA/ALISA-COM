@@ -53,6 +53,7 @@ public final class AlisaNetwork {
                 case 2 -> alisa.requestQuestFromMenu(player);
                 case 3 -> alisa.sendDialogGreeting(player);
                 case 4 -> alisa.toggleStayHere(player);
+                case 5 -> alisa.openCompanionInventory(player);
                 default -> { }
             }
             context.setPacketHandled(true);
