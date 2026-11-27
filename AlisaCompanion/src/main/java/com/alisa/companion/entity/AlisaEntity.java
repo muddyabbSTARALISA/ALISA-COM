@@ -79,7 +79,7 @@ public class AlisaEntity extends TamableAnimal {
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
             .add(Attributes.MAX_HEALTH, 24.0D)
-            .add(Attributes.MOVEMENT_SPEED, 0.30D)
+            .add(Attributes.MOVEMENT_SPEED, 0.23D)
             .add(Attributes.FOLLOW_RANGE, 28.0D);
     }
 
@@ -87,8 +87,8 @@ public class AlisaEntity extends TamableAnimal {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.12D, 5.0F, 2.0F, true));
-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.85D));
+        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 0.90D, 5.0F, 2.0F, true));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.65D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
     }
