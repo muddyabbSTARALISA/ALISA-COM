@@ -372,7 +372,7 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
-        tag.put(\"AlisaCompanionInventory\", companionInventory.createTag());
+        tag.put("AlisaCompanionInventory", companionInventory.createTag());
         tag.putInt(RELATIONSHIP_TAG, relationshipHalfPoints);
         tag.putLong(LAST_GIFT_TAG, lastGiftGameTime);
         tag.putInt(QUEST_TYPE_TAG, questType);
@@ -392,8 +392,8 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(\"AlisaCompanionInventory\", Tag.TAG_LIST)) {
-            companionInventory.fromTag(tag.getList(\"AlisaCompanionInventory\", Tag.TAG_COMPOUND));
+        if (tag.contains("AlisaCompanionInventory", Tag.TAG_LIST)) {
+            companionInventory.fromTag(tag.getList("AlisaCompanionInventory", Tag.TAG_COMPOUND));
         }
         relationshipHalfPoints = Math.max(0, Math.min(198, tag.getInt(RELATIONSHIP_TAG)));
         lastGiftGameTime = tag.contains(LAST_GIFT_TAG) ? tag.getLong(LAST_GIFT_TAG) : Long.MIN_VALUE;
