@@ -45,8 +45,7 @@ public class AlisaMenuScreen extends Screen {
             .bounds(cx - 165, cy + 62, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Настройки"), b -> {
-                if (minecraft.player != null) minecraft.player.displayClientMessage(
-                    Component.literal("Настройки поведения появятся в следующей части обновления."), true);
+                AlisaNetwork.sendMenuAction(entityId, 6);
             }).bounds(cx + 15, cy + 62, w, h).build());
     }
 
