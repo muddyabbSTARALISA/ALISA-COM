@@ -106,10 +106,25 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide || !this.isTame() || this.questType != QUEST_NONE) return;
+        if (this.level().isClientSide || !this.isTame()) return;
 
         Entity owner = this.getOwner();
-        if (!(owner instanceof Player player) || this.distanceToSqr(player) > 64.0D) return;
+        if (!(owner instanceof Player player)) return;
+
+        // Если Аля сильно отстала, она пытается безопасно переместиться рядом с владельцем.
+        // Закреплённую Алю не телепортируем.
+        if (!this.isOrderedToSit() && this.distanceToSqr(player) > 144.0D) {
+            for (int attempt = 0; attempt < 8; attempt++) {
+                double offsetX = (this.random.nextDouble() - 0.5D) * 4.0D;
+                double offsetZ = (this.random.nextDouble() - 0.5D) * 4.0D;
+                if (this.randomTeleport(player.getX() + offsetX, player.getY(),
+                    player.getZ() + offsetZ, true)) {
+                    break;
+                }
+            }
+        }
+
+        if (this.questType != QUEST_NONE || this.distanceToSqr(player) > 64.0D) return;
 
         long now = this.level().getGameTime();
         if (lastQuestOfferTime == Long.MIN_VALUE) {
