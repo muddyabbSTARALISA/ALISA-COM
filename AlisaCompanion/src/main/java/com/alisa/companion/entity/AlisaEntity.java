@@ -71,7 +71,6 @@ public class AlisaEntity extends TamableAnimal {
     private long lastArmorQuestTime = Long.MIN_VALUE;
     private long lastDecorQuestTime = Long.MIN_VALUE;
     private long lastQuestOfferTime = Long.MIN_VALUE;
-    private boolean stayHere;
 
     public AlisaEntity(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -138,7 +137,7 @@ public class AlisaEntity extends TamableAnimal {
     }
 
     public void toggleStayHere(Player player) {
-        stayHere = !stayHere;
+        boolean stayHere = !this.isOrderedToSit();
         this.setOrderedToSit(stayHere);
         this.navigation.stop();
         player.displayClientMessage(Component.literal(stayHere
