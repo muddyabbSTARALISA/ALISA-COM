@@ -18,12 +18,13 @@ public final class AlisaInputEvents {
 
     @SubscribeEvent
     public static void onInteractionKey(InputEvent.InteractionKeyMappingTriggered event) {
-        if (!event.isUseItem()) return;
+        if (!event.isUseItem() || event.getHand() != net.minecraft.world.InteractionHand.MAIN_HAND) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.screen != null) return;
         if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit
             && hit.getEntity() instanceof AlisaEntity alisa && alisa.isOwnedBy(mc.player)) {
             event.setCanceled(true);
+            event.setSwingHand(false);
             targetId = alisa.getId();
             heldTicks = 0;
             menuOpened = false;
