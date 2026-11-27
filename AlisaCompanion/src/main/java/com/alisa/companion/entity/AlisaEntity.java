@@ -1,7 +1,6 @@
 package com.alisa.companion.entity;
 
 import com.alisa.companion.registry.ModItems;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -226,7 +225,7 @@ public class AlisaEntity extends TamableAnimal {
             player.displayClientMessage(Component.literal("Задание Алисы: принести три разных вида еды. Прогресс: "
                 + questFoods.size() + "/" + FOOD_TYPES_REQUIRED + "."), true);
         } else if (questType == QUEST_ARMOR) {
-            player.displayClientMessage(Component.literal("Задание Алисы: принести любую часть брони. Прогресс: "
+            player.displayClientMessage(Component.literal("Задание Алисы: принести часть брони, которую ты скрафтил. Прогресс: "
                 + questProgress + "/1."), true);
         } else if (questType == QUEST_DECOR) {
             player.displayClientMessage(Component.literal("Задание Алисы: поставить рядом блок "
@@ -263,7 +262,7 @@ public class AlisaEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         }
 
-        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem) {
+        if (questType == QUEST_ARMOR && stack.getItem() instanceof ArmorItem\n            && stack.getTag() != null && stack.getTag().getBoolean("AlisaCraftedArmor")) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
             completeQuest(player, 3, "Задание выполнено! Аля получила новую броню. Награда: +1,5 очка.");
             return InteractionResult.CONSUME;
