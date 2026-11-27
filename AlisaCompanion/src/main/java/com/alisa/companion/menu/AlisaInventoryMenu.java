@@ -52,6 +52,7 @@ public class AlisaInventoryMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (player.level().isClientSide) return true;
         return alisa != null && alisa.isAlive() && alisa.isOwnedBy(player)
             && player.distanceToSqr(alisa) <= 64.0D;
     }
