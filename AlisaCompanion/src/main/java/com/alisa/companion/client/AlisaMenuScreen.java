@@ -26,35 +26,31 @@ public class AlisaMenuScreen extends Screen {
         int cy = this.height / 2;
         int w = 150;
         int h = 20;
-        int left = cx - w / 2;
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
+            Component.literal(staying ? "Открепить" : "Закрепить"),
+            b -> AlisaNetwork.sendMenuAction(entityId, 4))
+            .bounds(cx - 165, cy - 72, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Диалог"), b -> AlisaNetwork.sendMenuAction(entityId, 3))
-            .bounds(left - 160, cy - 48, w, h).build());
+            .bounds(cx + 15, cy - 72, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Инвентарь"), b -> {
                 if (minecraft.player != null) minecraft.player.displayClientMessage(
-                    Component.literal("Инвентарь Алисы будет подключён следующим этапом интерфейса."), true);
-            }).bounds(left - 160, cy - 20, w, h).build());
+                    Component.literal("Личный инвентарь Алисы подключается в следующей части интерфейса."), true);
+            }).bounds(cx - 245, cy - 10, w, h).build());
+        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
+            Component.literal("Спец. взаимодействия"), b -> {
+                if (minecraft.player != null) minecraft.player.displayClientMessage(
+                    Component.literal("Особые взаимодействия пока разрабатываются."), true);
+            }).bounds(cx + 95, cy - 10, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Задания"), b -> AlisaNetwork.sendMenuAction(entityId, 2))
-            .bounds(left - 160, cy + 8, w, h).build());
-        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.literal(staying ? "Продолжить следовать" : "Остаться здесь"),
-            b -> AlisaNetwork.sendMenuAction(entityId, 4))
-            .bounds(cx + 10, cy - 48, w, h).build());
-        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.literal("Отношения"), b -> AlisaNetwork.sendMenuAction(entityId, 1))
-            .bounds(cx + 10, cy - 20, w, h).build());
+            .bounds(cx - 165, cy + 62, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Настройки"), b -> {
                 if (minecraft.player != null) minecraft.player.displayClientMessage(
                     Component.literal("Настройки поведения появятся в следующей части обновления."), true);
-            }).bounds(cx + 10, cy + 8, w, h).build());
-        addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.literal("Специальные взаимодействия"), b -> {
-                if (minecraft.player != null) minecraft.player.displayClientMessage(
-                    Component.literal("Особые взаимодействия пока разрабатываются."), true);
-            }).bounds(cx - 75, cy + 48, w, h).build());
+            }).bounds(cx + 15, cy + 62, w, h).build());
     }
 
     @Override
