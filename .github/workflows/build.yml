@@ -1,10 +1,11 @@
-
 name: Build Forge mod
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches: [ "main", "master" ]
+  push:
+    branches: [ "main", "master", "feature/**" ]
 
 jobs:
   build:
