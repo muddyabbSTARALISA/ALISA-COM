@@ -37,7 +37,7 @@ public class AlisaEntity extends TamableAnimal {
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new FloatGoal(this));
         this.goalSelector.addGoal(1, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.12D, 5.0F, 2.0F));
+       this.goalSelector.addGoal(2, new FollowOwnerGoal(this, 1.12D, 5.0F, 2.0F, true));
         this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.85D));
         this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
