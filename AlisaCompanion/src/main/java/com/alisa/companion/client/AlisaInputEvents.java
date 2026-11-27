@@ -39,7 +39,6 @@ public final class AlisaInputEvents {
             reset();
             return;
         }
-        if (net.minecraft.client.Minecraft.ON_OSX) return;
         boolean down = org.lwjgl.glfw.GLFW.glfwGetMouseButton(mc.getWindow().getWindow(), 1)
             == org.lwjgl.glfw.GLFW.GLFW_PRESS;
         if (down) {
