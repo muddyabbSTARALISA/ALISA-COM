@@ -120,6 +120,12 @@ public class AlisaEntity extends TamableAnimal {
 
         ItemStack held = player.getItemInHand(hand);
         if (this.isOwnedBy(player)) {
+            if (player.isShiftKeyDown() && held.isEmpty()) {
+                player.displayClientMessage(Component.literal("Отношения с Алей: "
+                    + getRelationshipPoints() + "/99 — " + getRelationshipStatus()), true);
+                return InteractionResult.CONSUME;
+            }
+
             InteractionResult giftResult = tryAcceptGift(player, held);
             if (giftResult.consumesAction()) return giftResult;
 
