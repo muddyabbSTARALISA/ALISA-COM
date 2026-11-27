@@ -34,10 +34,7 @@ public class AlisaMenuScreen extends Screen {
             Component.literal("Диалог"), b -> AlisaNetwork.sendMenuAction(entityId, 3))
             .bounds(cx + 15, cy - 72, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
-            Component.literal("Инвентарь"), b -> {
-                if (minecraft.player != null) minecraft.player.displayClientMessage(
-                    Component.literal("Личный инвентарь Алисы подключается в следующей части интерфейса."), true);
-            }).bounds(cx - 245, cy - 10, w, h).build());
+            Component.literal("Инвентарь"), b -> AlisaNetwork.sendMenuAction(entityId, 5)).bounds(cx - 245, cy - 10, w, h).build());
         addRenderableWidget(net.minecraft.client.gui.components.Button.builder(
             Component.literal("Спец. взаимодействия"), b -> {
                 if (minecraft.player != null) minecraft.player.displayClientMessage(
