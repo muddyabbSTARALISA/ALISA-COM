@@ -90,11 +90,11 @@ public class AlisaEntity extends TamableAnimal {
             return InteractionResult.CONSUME;
         }
 
+        String giftName = stack.is(ModItems.CHOCOLATE.get()) ? "шоколад"
+            : stack.is(ModItems.SODA.get()) ? "газировку" : "угощение";
         if (!player.getAbilities().instabuild) stack.shrink(1);
         relationshipHalfPoints = Math.min(198, relationshipHalfPoints + (favorite ? 2 : 1));
         lastGiftGameTime = now;
-
-        String giftName = favorite ? (stack.is(ModItems.CHOCOLATE.get()) ? "шоколад" : "газировку") : "угощение";
         player.displayClientMessage(Component.literal("Але понравилось " + giftName + "! Отношения: "
             + getRelationshipPoints() + "/99 — " + getRelationshipStatus()), true);
         return InteractionResult.CONSUME;
