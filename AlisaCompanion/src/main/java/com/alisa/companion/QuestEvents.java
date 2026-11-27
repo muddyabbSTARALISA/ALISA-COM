@@ -2,14 +2,27 @@ package com.alisa.companion;
 
 import com.alisa.companion.entity.AlisaEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = AlisaCompanion.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class QuestEvents {
+    private static final String CRAFTED_ARMOR_TAG = "AlisaCraftedArmor";
+
     private QuestEvents() { }
+
+    @SubscribeEvent
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        ItemStack crafted = event.getCrafting();
+        if (crafted.getItem() instanceof ArmorItem) {
+            crafted.getOrCreateTag().putBoolean(CRAFTED_ARMOR_TAG, true);
+        }
+    }
 
     @SubscribeEvent
     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
