@@ -74,6 +74,7 @@ public class AlisaEntity extends TamableAnimal {
     private int questProgress = 0;
     private final List<String> questFoods = new ArrayList<>();
     private final SimpleContainer companionInventory = new SimpleContainer(9);
+    private boolean teleportEnabled = true;
     private long lastFoodQuestTime = Long.MIN_VALUE;
     private long lastArmorQuestTime = Long.MIN_VALUE;
     private long lastDecorQuestTime = Long.MIN_VALUE;
@@ -120,7 +121,7 @@ public class AlisaEntity extends TamableAnimal {
 
         // Если Аля сильно отстала, она пытается безопасно переместиться рядом с владельцем.
         // Закреплённую Алю не телепортируем.
-        if (!this.isOrderedToSit() && this.distanceToSqr(player) > 144.0D) {
+        if (teleportEnabled && !this.isOrderedToSit() && this.distanceToSqr(player) > 144.0D) {
             for (int attempt = 0; attempt < 8; attempt++) {
                 double offsetX = (this.random.nextDouble() - 0.5D) * 4.0D;
                 double offsetZ = (this.random.nextDouble() - 0.5D) * 4.0D;
@@ -145,6 +146,13 @@ public class AlisaEntity extends TamableAnimal {
     }
 
     public Container getCompanionInventory() { return companionInventory; }
+    public boolean isTeleportEnabled() { return teleportEnabled; }
+
+    public void toggleTeleport(Player player) {
+        teleportEnabled = !teleportEnabled;
+        player.displayClientMessage(Component.literal("Автотелепортация Алисы: "
+            + (teleportEnabled ? "включена" : "выключена") + "."), false);
+    }
 
     public void openCompanionInventory(ServerPlayer player) {
         NetworkHooks.openScreen(player, new SimpleMenuProvider(
@@ -373,6 +381,7 @@ public class AlisaEntity extends TamableAnimal {
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.put("AlisaCompanionInventory", companionInventory.createTag());
+        tag.putBoolean("AlisaTeleportEnabled", teleportEnabled);
         tag.putInt(RELATIONSHIP_TAG, relationshipHalfPoints);
         tag.putLong(LAST_GIFT_TAG, lastGiftGameTime);
         tag.putInt(QUEST_TYPE_TAG, questType);
@@ -392,6 +401,7 @@ public class AlisaEntity extends TamableAnimal {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        teleportEnabled = !tag.contains("AlisaTeleportEnabled") || tag.getBoolean("AlisaTeleportEnabled");
         if (tag.contains("AlisaCompanionInventory", Tag.TAG_LIST)) {
             companionInventory.fromTag(tag.getList("AlisaCompanionInventory", Tag.TAG_COMPOUND));
         }
